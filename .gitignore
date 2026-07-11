@@ -1,0 +1,25 @@
+# Secrets and local credentials
+secrets/*
+!secrets/.gitkeep
+*.psk
+*.key
+*.pem
+*.crt
+*.env
+
+# Original lab files currently contain example passwords.
+# Keep them local until sanitized copies are created.
+docker-compose-zabbix50.yaml
+envs/
+
+# Runtime data and volumes
+mysql-zabbix50/
+data_internal/
+zbx_env/
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
