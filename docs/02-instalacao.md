@@ -20,5 +20,4 @@ cp .env.example .env
 O Compose cria tres volumes Docker independentes para os bancos SQLite dos
 proxies. O banco do Server permanece em `mysql-zabbix50/`.
 
-O frontend e publicado em `http://localhost:8083` e pelo proxy reverso em
-`https://zabbix.devops.abellinux.com/`.
+O frontend e publicado localmente em `http://localhost:8083/`.
