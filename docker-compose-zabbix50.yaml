@@ -1,0 +1,86 @@
+version: "3.7"
+
+x-deploy: &template-deploy
+  replicas: 1
+  restart_policy:
+    condition: on-failure
+  update_config:
+    parallelism: 1
+    delay: 10s
+services:
+  mysql-zabbix:
+    image: mysql:8.0.20
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_bin
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?configure MYSQL_ROOT_PASSWORD no arquivo .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-zabbix}
+      MYSQL_USER: ${MYSQL_USER:-zabbix}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?configure MYSQL_PASSWORD no arquivo .env}
+      MYSQL_ROOT_HOST: ${MYSQL_ROOT_HOST:-%}
+    networks:
+      - "monitoring-network"
+    volumes:
+      - ./mysql-zabbix50:/var/lib/mysql
+    deploy: *template-deploy
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:centos-5.0.10
+    env_file: 
+      - ./envs/zabbix-server/common.env
+      - ./envs/zabbix-server/zabbix50.env
+    environment:
+      DB_SERVER_HOST: ${DB_SERVER_HOST:-zabbix50_mysql-zabbix}
+      DB_SERVER_PORT: ${DB_SERVER_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-zabbix}
+      MYSQL_USER: ${MYSQL_USER:-zabbix}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?configure MYSQL_PASSWORD no arquivo .env}
+    networks:
+      - "monitoring-network"
+    volumes:
+        - ./data_internal/zabbix-server/externalscripts:/usr/lib/zabbix/externalscripts
+        - ./data_internal/zabbix-server/alertscripts:/usr/lib/zabbix/alertscripts
+    ports:
+      - "10151:10051"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+  zabbix-frontend:
+    image: zabbix/zabbix-web-nginx-mysql:alpine-5.0.10
+    env_file: 
+      - ./envs/zabbix-frontend/common.env
+      - ./envs/zabbix-frontend/zabbix50.env
+    environment:
+      DB_SERVER_HOST: ${DB_SERVER_HOST:-zabbix50_mysql-zabbix}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-zabbix}
+      MYSQL_USER: ${MYSQL_USER:-zabbix}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?configure MYSQL_PASSWORD no arquivo .env}
+    ports:
+      - "8081:8080"
+    networks:
+      - "monitoring-network"
+    deploy: *template-deploy
+  zabbix-proxy:
+    image: zabbix/zabbix-proxy-sqlite3:ubuntu-5.0-latest
+    env_file: 
+      - ./envs/zabbix-proxy/common.env
+      - ./envs/zabbix-proxy/zabbix50.env
+    networks:
+      - "monitoring-network"
+    deploy: *template-deploy
+  zabbix-agent:
+    image: zabbix/zabbix-agent2:alpine-5.0-latest
+    env_file:
+      - ./envs/zabbix-agent/zabbix50.env
+    ports:
+      - "10150:10050"
+    networks:
+      - "monitoring-network"
+    deploy: *template-deploy
+
+networks: 
+  monitoring-network:
+    external: true
