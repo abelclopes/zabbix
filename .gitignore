@@ -15,6 +15,7 @@ material-original/
 # Runtime data and volumes
 mysql-zabbix50/
 data_internal/
+proxy-data/
 zbx_env/
 *.log
 
