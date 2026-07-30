@@ -111,6 +111,42 @@ services:
     networks: [monitoring-network]
     restart: unless-stopped
 
+  # Dispositivo on-premises simulado, consultado exclusivamente via SNMP.
+  snmp-device-onprem:
+    build: ./lab/snmp-device
+    networks: [monitoring-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pidof snmpd >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Aplicacoes Web locais usadas para comprovar a coleta pelos proxies cloud.
+  web-app-cloud-01:
+    image: nginx:1.27-alpine
+    networks: [monitoring-network]
+    volumes:
+      - ./lab/web-app-cloud-01/index.html:/usr/share/nginx/html/index.html:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  web-app-cloud-02:
+    image: nginx:1.27-alpine
+    networks: [monitoring-network]
+    volumes:
+      - ./lab/web-app-cloud-02/index.html:/usr/share/nginx/html/index.html:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 networks:
   monitoring-network:
     external: true

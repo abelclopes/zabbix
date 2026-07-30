@@ -71,7 +71,7 @@ Todos os servicos estao na rede externa `monitoring-network`.
 flowchart TD
     DB[(MySQL Zabbix Server)]
     Server[Zabbix Server\nTCP 10051]
-    Web[Zabbix Web Frontend\nHTTP 8081]
+    Web[Zabbix Web Frontend\nHTTP 8083]
 
     OnPremDB[(DB proxy on-prem)]
     CloudDB1[(DB proxy cloud 01)]
@@ -106,7 +106,7 @@ flowchart TD
 
 ## Funcionamento do projeto atual
 
-O projeto sobe um ambiente Zabbix basico com banco MySQL, Zabbix Server, frontend Nginx, um proxy SQLite e um agent2. O frontend e publicado na porta `8081` do host e o servidor Zabbix na porta `10151` do host, mapeada para `10051` no container.
+O projeto sobe um ambiente Zabbix basico com banco MySQL, Zabbix Server, frontend Nginx, proxies SQLite e um agent2. O frontend e publicado na porta `8083` do host e o servidor Zabbix na porta `10151` do host, mapeada para `10051` no container.
 
 Os arquivos `.env` configuram parametros do Zabbix por variaveis com prefixo `ZBX_`, alem de variaveis do MySQL. Segundo a documentacao oficial dos containers Zabbix, variaveis de componente correspondem a parametros dos arquivos de configuracao com outro padrao de nome, por exemplo `ZBX_SERVER_HOST` para `Server`.
 
@@ -114,7 +114,7 @@ Os arquivos `.env` configuram parametros do Zabbix por variaveis com prefixo `ZB
 
 | Uso | Protocolo/porta | Observacao |
 |---|---:|---|
-| Frontend Zabbix | TCP `8081:8080` | Exposto no host |
+| Frontend Zabbix | TCP `8083:8080` | Exposto no host |
 | Zabbix Server | TCP `10151:10051` | Porta interna padrao `10051` |
 | MySQL | TCP `3306` | Apenas rede Docker no compose atual |
 | SNMP | UDP `161` | Necessario para o proxy on-prem |
@@ -250,7 +250,7 @@ Fontes consultadas:
 - Rede Docker `monitoring-network`, se ela ja existir e nao conflitar.
 - Padrao de arquivos `.env` separados por componente.
 - Volumes de scripts externos e alert scripts do servidor.
-- Porta de frontend `8081`, se nao houver conflito local.
+- Porta de frontend `8083`, conforme o Compose atual.
 
 ## Pontos que exigem ajuste
 
