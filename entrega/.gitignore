@@ -1,0 +1,7 @@
+.env
+secrets/*.psk
+mysql-zabbix50/
+data_internal/
+proxy-data/
+*.sqlite
+*.log
